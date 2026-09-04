@@ -1,0 +1,52 @@
+# Model Architecture Configuration
+
+# Model type: baseline, oceanembed
+model_type: "oceanembed"
+
+# Spatial Encoder (CNN)
+spatial_encoder:
+  type: "cnn"
+  in_channels: 7  # 7 surface variables (8 if SST mask included)
+  channels: [32, 64, 128, 128]
+  kernel_size: 3
+  padding: 1
+  batch_norm: true
+  activation: "relu"
+  dropout: 0.1
+
+# Embedding
+embedding:
+  dim: 128  # Options: 64, 128, 256
+
+# Temporal Encoder
+temporal_encoder:
+  type: "gru"  # Options: gru, lstm, attention
+  hidden_size: 128
+  num_layers: 2
+  dropout: 0.1
+  bidirectional: false
+
+# Temporal window
+temporal_window: 7  # Options: 1, 3, 5, 7
+
+# Depth Decoder
+depth_decoder:
+  type: "depth_aware"  # Options: mlp, depth_aware
+  num_depths: 15
+  depth_embed_dim: 32
+  hidden_dims: [256, 128]
+  dropout: 0.2
+
+# Standard depths
+depths: [0, 5, 10, 20, 30, 50, 75, 100, 125, 150, 200, 300, 500, 700, 1000]
+
+# Grid dimensions (derived from data config)
+grid:
+  height: 101  # lat points
+  width: 241   # lon points
+
+# Uncertainty
+uncertainty:
+  method: "mc_dropout"
+  num_samples: 20
+  dropout_rate: 0.1

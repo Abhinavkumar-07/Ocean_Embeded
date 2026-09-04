@@ -1,0 +1,44 @@
+{
+  "experiment_id": "exp_20260904_111329",
+  "model_type": "baseline",
+  "num_parameters": 94274619,
+  "best_val_loss": 263.0660705566406,
+  "best_epoch": 5,
+  "total_epochs": 5,
+  "training_duration_seconds": 43.882513761520386,
+  "device": "cpu",
+  "seed": 42,
+  "synthetic_data": true,
+  "metrics_per_epoch": [
+    {
+      "epoch": 1,
+      "train_loss": 1142.3043823242188,
+      "val_loss": 1141.684814453125,
+      "lr": 0.0009997557473810372
+    },
+    {
+      "epoch": 2,
+      "train_loss": 1089.3011779785156,
+      "val_loss": 1099.1241455078125,
+      "lr": 0.0009990232305719946
+    },
+    {
+      "epoch": 3,
+      "train_loss": 909.1417541503906,
+      "val_loss": 953.34033203125,
+      "lr": 0.0009978031724785247
+    },
+    {
+      "epoch": 4,
+      "train_loss": 565.8541107177734,
+      "val_loss": 688.5555419921875,
+      "lr": 0.0009960967771506667
+    },
+    {
+      "epoch": 5,
+      "train_loss": 238.5491828918457,
+      "val_loss": 263.0660705566406,
+      "lr": 0.0009939057285945933
+    }
+  ]
+}

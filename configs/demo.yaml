@@ -1,0 +1,38 @@
+# Demo Mode Configuration
+
+# Demo mode serves pre-computed predictions
+enabled: true
+
+# Demo data location
+data_dir: "data/samples/demo"
+
+# Demo dates (representative dates with pre-computed predictions)
+dates:
+  - "2020-01-15"
+  - "2020-02-15"
+  - "2020-03-15"
+
+# Demo locations (points with pre-computed profiles)
+locations:
+  - name: "Bay of Bengal (Central)"
+    lat: 15.0
+    lon: 88.0
+  - name: "Bay of Bengal (North)"
+    lat: 20.0
+    lon: 89.0
+  - name: "Arabian Sea"
+    lat: 15.0
+    lon: 65.0
+  - name: "Equatorial Indian Ocean"
+    lat: 8.0
+    lon: 80.0
+
+# Default display
+default_date: "2020-02-15"
+default_depth: 0
+default_location:
+  lat: 15.0
+  lon: 88.0
+
+# Data source label
+data_source: "demo_precomputed"

@@ -1,0 +1,60 @@
+# Training Configuration
+
+seed: 42
+
+# Data
+batch_size: 16
+num_workers: 4
+pin_memory: true
+
+# Optimizer
+optimizer:
+  type: "adamw"
+  learning_rate: 0.001
+  weight_decay: 0.01
+  betas: [0.9, 0.999]
+
+# Learning rate scheduler
+scheduler:
+  type: "cosine"
+  T_max: 100
+  eta_min: 0.00001
+
+# Loss function
+loss:
+  type: "thermocline_weighted"  # Options: mse, mae, huber, thermocline_weighted
+  # Depth band indices (0-indexed into 15 depths)
+  surface_indices: [0, 1, 2, 3, 4, 5]      # 0–50m
+  thermocline_indices: [6, 7, 8, 9, 10, 11] # 75–300m
+  deep_indices: [12, 13, 14]                 # 500–1000m
+  # Weights
+  surface_weight: 1.0
+  thermocline_weight: 2.0
+  deep_weight: 1.0
+
+# Training
+epochs: 100
+gradient_clip: 1.0
+
+# Early stopping
+early_stopping:
+  enabled: true
+  patience: 15
+  min_delta: 0.001
+  monitor: "val_loss"
+
+# Checkpointing
+checkpoint:
+  save_dir: "artifacts/checkpoints"
+  save_best: true
+  save_last: true
+  monitor: "val_loss"
+
+# Logging
+logging:
+  log_interval: 10  # batches
+  metrics_dir: "artifacts/metrics"
+  figures_dir: "artifacts/figures"
+
+# Device
+device: "auto"  # auto, cpu, cuda, cuda:0

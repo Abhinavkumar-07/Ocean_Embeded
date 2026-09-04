@@ -1,0 +1,99 @@
+# Data Pipeline Configuration
+
+# Target region
+region:
+  lat_min: 5.0
+  lat_max: 30.0
+  lon_min: 45.0
+  lon_max: 105.0
+
+# Development subset (smaller for initial work)
+dev_region:
+  lat_min: 5.0
+  lat_max: 20.0
+  lon_min: 80.0
+  lon_max: 95.0
+
+# Grid resolution
+resolution: 0.25
+
+# Temporal
+temporal:
+  start_date: "2020-01-01"
+  end_date: "2020-03-31"
+  frequency: "daily"
+
+# Standard depths (meters)
+depths:
+  - 0
+  - 5
+  - 10
+  - 20
+  - 30
+  - 50
+  - 75
+  - 100
+  - 125
+  - 150
+  - 200
+  - 300
+  - 500
+  - 700
+  - 1000
+
+# Input variables
+input_variables:
+  - name: sst
+    long_name: "Sea Surface Temperature"
+    units: "°C"
+    source_units: "K"
+    transform: "kelvin_to_celsius"
+  - name: sss
+    long_name: "Sea Surface Salinity"
+    units: "PSU"
+  - name: ssh
+    long_name: "Sea Surface Height"
+    units: "m"
+  - name: current_u
+    long_name: "Surface Current Eastward"
+    units: "m/s"
+  - name: current_v
+    long_name: "Surface Current Northward"
+    units: "m/s"
+  - name: wind_u
+    long_name: "Surface Wind Eastward"
+    units: "m/s"
+  - name: wind_v
+    long_name: "Surface Wind Northward"
+    units: "m/s"
+
+# Missing data handling
+missing_data:
+  sst_cloud_mask: true
+  interpolation_method: "linear"
+  max_gap_days: 3
+  climatology_fallback: true
+
+# Quality control
+quality_control:
+  sst_range: [-2.0, 35.0]
+  sss_range: [0.0, 42.0]
+  ssh_range: [-3.0, 3.0]
+  current_range: [-5.0, 5.0]
+  wind_range: [-50.0, 50.0]
+  temperature_range: [-2.0, 35.0]
+
+# Train/val/test split (temporal)
+split:
+  train_ratio: 0.7
+  val_ratio: 0.15
+  test_ratio: 0.15
+  method: "temporal"  # chronological split
+
+# Data paths
+paths:
+  raw: "data/raw"
+  interim: "data/interim"
+  processed: "data/processed"
+  samples: "data/samples"
+  metadata: "data/metadata"
