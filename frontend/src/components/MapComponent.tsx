@@ -23,7 +23,7 @@ export const MapComponent = ({ surfaceData }: any) => {
         {/* NASA GIBS Sea Surface Temperature (GHRSST) Overlay */}
         <TileLayer
           attribution='&copy; <a href="https://earthdata.nasa.gov/gibs">NASA EOSDIS GIBS</a>'
-          url="https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GHRSST_L4_MUR_Sea_Surface_Temperature/default/2023-08-15/GoogleMapsCompatible_Level7/{z}/{y}/{x}.png"
+          url="https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GHRSST_L4_MUR_Sea_Surface_Temperature/default/2020-01-15/GoogleMapsCompatible_Level7/{z}/{y}/{x}.png"
           opacity={0.65}
           maxNativeZoom={7}
         />
