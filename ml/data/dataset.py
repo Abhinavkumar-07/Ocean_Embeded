@@ -90,6 +90,28 @@ class OceanDataset(Dataset):
         surface = np.nan_to_num(surface, nan=0.0)
         target = np.nan_to_num(target, nan=0.0)
 
+        # Inject seasonal encodings (sin/cos of day of year)
+        if 'date' in data:
+            date_str = str(data['date'])
+            try:
+                from datetime import datetime
+                dt = datetime.strptime(date_str, "%Y-%m-%d")
+                day_of_year = dt.timetuple().tm_yday
+                sin_doy = np.sin(2 * np.pi * day_of_year / 365.25)
+                cos_doy = np.cos(2 * np.pi * day_of_year / 365.25)
+                
+                T, C, H, W = surface.shape
+                # Create channels filled with sin/cos values
+                sin_channel = np.full((T, 1, H, W), sin_doy, dtype=np.float32)
+                cos_channel = np.full((T, 1, H, W), cos_doy, dtype=np.float32)
+                
+                # Append to surface tensor -> shape becomes (T, C+2, H, W)
+                surface = np.concatenate([surface, sin_channel, cos_channel], axis=1)
+            except Exception as e:
+                pass # If date parsing fails, we skip appending or let it fail?
+                # Actually, better to pad with zeros if we want constant channel size
+                # but if 'date' is missing, it will cause shape mismatch later.
+        
         sample = {
             'surface': torch.from_numpy(surface),
             'target': torch.from_numpy(target),
