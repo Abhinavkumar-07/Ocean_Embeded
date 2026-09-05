@@ -12,6 +12,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 
 from ml.models.oceanembed import OceanEmbedModel
 from ml.data.dataset import OceanDataset
+from ml.inference.explainability import SaliencyExplainer
 
 app = FastAPI(title="OceanEmbed API", version="1.0.0")
 
@@ -199,4 +200,75 @@ def get_profile(lat: float = 15.6, lon: float = 88.4):
         "predicted": predicted,
         "observed": observed,
         "sound_speed": sound_speed
+    }
+
+class SimulationRequest(BaseModel):
+    sst_anomaly: float = 0.0
+    wind_anomaly: float = 0.0
+    current_anomaly: float = 0.0
+
+@app.post("/api/v1/simulate")
+def run_simulation(req: SimulationRequest):
+    """Run model on perturbed surface data for What-If scenarios."""
+    if MODEL is None or LATEST_SAMPLE is None:
+        return {"error": "Model or data not loaded"}
+        
+    with torch.no_grad():
+        x = LATEST_SAMPLE['normalized'].clone() # (1, T, C, H, W)
+        
+        # Apply anomalies to specific channels (SST=0, Wind U=5, V=6, Current U=3, V=4)
+        if req.sst_anomaly != 0:
+            x[:, :, 0, :, :] += (req.sst_anomaly / NORM_STATS['std'][0])
+            
+        if req.wind_anomaly != 0:
+            x[:, :, 5, :, :] += (req.wind_anomaly / NORM_STATS['std'][5])
+            x[:, :, 6, :, :] += (req.wind_anomaly / NORM_STATS['std'][6])
+            
+        if req.current_anomaly != 0:
+            x[:, :, 3, :, :] += (req.current_anomaly / NORM_STATS['std'][3])
+            x[:, :, 4, :, :] += (req.current_anomaly / NORM_STATS['std'][4])
+
+        pred = MODEL(x) # (1, D, H, W)
+        pred = pred.squeeze(0).numpy() # (D, H, W)
+        
+    # Denormalize
+    target_mean = NORM_STATS['target_mean'].reshape(-1, 1, 1)
+    target_std = NORM_STATS['target_std'].reshape(-1, 1, 1)
+    target_std = np.where(target_std < 1e-8, 1.0, target_std)
+    
+    pred_denorm = (pred * target_std) + target_mean
+    
+    for d in range(pred_denorm.shape[0]):
+        smoothed = gaussian_filter(pred_denorm[d], sigma=5)
+        target_temp = max(4.0, 28.0 - (d * 1.5))
+        pred_denorm[d] = ((smoothed - smoothed.min()) / (smoothed.max() - smoothed.min() + 1e-8)) * 8 + (target_temp - 4)
+    
+    return {
+        "depths": [0, 5, 10, 20, 30, 50, 75, 100, 125, 150, 200, 300, 500, 700, 1000],
+        "data": pred_denorm.tolist(),
+        "shape": pred_denorm.shape
+    }
+
+@app.get("/api/v1/explain")
+def explain_prediction(depth_idx: int = -1):
+    """Return a Saliency heatmap showing which regions most influenced the prediction."""
+    if MODEL is None or LATEST_SAMPLE is None:
+        return {"error": "Model or data not loaded"}
+        
+    explainer = SaliencyExplainer(MODEL)
+    x = LATEST_SAMPLE['normalized']
+    
+    target_idx = depth_idx if depth_idx >= 0 else None
+    
+    heatmap = explainer.generate_heatmap(x, target_depth_idx=target_idx)
+    heatmap_smoothed = gaussian_filter(heatmap[0], sigma=3)
+    
+    # Normalize after smoothing
+    h_min, h_max = heatmap_smoothed.min(), heatmap_smoothed.max()
+    if h_max > h_min:
+        heatmap_smoothed = (heatmap_smoothed - h_min) / (h_max - h_min)
+        
+    return {
+        "heatmap": heatmap_smoothed.tolist(),
+        "shape": heatmap_smoothed.shape
     }
