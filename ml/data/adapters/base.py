@@ -62,8 +62,9 @@ class DatasetAdapter(ABC):
     implements this interface for consistent data handling.
     """
 
-    def __init__(self, name: str, data_dir: str = "data/raw"):
+    def __init__(self, name: str, config: dict, data_dir: str = "data/raw"):
         self.name = name
+        self.config = config
         self.data_dir = data_dir
         self._dataset: Optional[xr.Dataset] = None
 
@@ -78,46 +79,83 @@ class DatasetAdapter(ABC):
         pass
 
     @abstractmethod
-    def select_variables(self, variables: List[str]) -> xr.Dataset:
-        """Select specific variables from the dataset."""
+    def get_provenance(self) -> dict:
+        """Return the dataset provenance matching the Canonical Provenance Schema."""
         pass
+
+    def select_variables(self) -> xr.Dataset:
+        """Select specific variables from the dataset based on config."""
+        ds = self._dataset
+        if ds is None:
+            raise ValueError("No dataset loaded.")
+        
+        mapping = self.config.get('variable_mapping', {})
+        if not mapping:
+            return ds
+
+        vars_to_keep = list(mapping.keys())
+        ds = ds[vars_to_keep]
+        # Rename to canonical names
+        ds = ds.rename(mapping)
+        self._dataset = ds
+        return ds
 
     def normalize_coordinates(self) -> xr.Dataset:
         """
-        Normalize coordinate names and conventions:
-        - Rename to: lon, lat, time, depth
-        - Longitude: 0–360° convention
+        Normalize coordinate names and conventions based on config mapping:
+        - Rename to canonical: lon, lat, time, depth
         - Latitude: South → North ordering
+        - Longitude: Configurable convention ('360' or '-180')
         - Time: datetime64[ns]
         """
         ds = self._dataset
         if ds is None:
             raise ValueError("No dataset loaded. Call load() first.")
 
-        # Rename common coordinate variations
+        # 1. Rename coordinates based on config
+        coord_map = self.config.get('coordinate_conventions', {})
         rename_map = {}
-        for coord in ds.coords:
-            lower = coord.lower()
-            if lower in ('longitude', 'x', 'nav_lon'):
-                rename_map[coord] = 'lon'
-            elif lower in ('latitude', 'y', 'nav_lat'):
-                rename_map[coord] = 'lat'
-            elif lower in ('time_counter',):
-                rename_map[coord] = 'time'
+        for canonical, source_list in coord_map.items():
+            for source in source_list:
+                if source in ds.coords:
+                    rename_map[source] = canonical
+                    break
+        
+        # If no config provided, fallback to heuristic (mainly for mock compatibility)
+        if not rename_map:
+            for coord in ds.coords:
+                lower = str(coord).lower()
+                if lower in ('longitude', 'x', 'nav_lon'): rename_map[coord] = 'lon'
+                elif lower in ('latitude', 'y', 'nav_lat'): rename_map[coord] = 'lat'
+                elif lower in ('time_counter', 'time'): rename_map[coord] = 'time'
+                elif lower in ('depth', 'pres', 'z'): rename_map[coord] = 'depth'
 
         if rename_map:
             ds = ds.rename(rename_map)
 
-        # Ensure latitude is south → north
+        # 2. Ensure latitude is south → north
         if 'lat' in ds.coords and ds.lat.values[0] > ds.lat.values[-1]:
             ds = ds.sortby('lat')
+            
+        # Ensure depth is shallow → deep
+        if 'depth' in ds.coords and ds.depth.values[0] > ds.depth.values[-1]:
+            ds = ds.sortby('depth')
 
-        # Normalize longitude to 0–360 if needed
+        # 3. Normalize longitude convention
+        lon_convention = self.config.get('lon_convention', '360')
         if 'lon' in ds.coords:
-            lon_vals = ds.lon.values
-            if np.any(lon_vals < 0):
-                ds = ds.assign_coords(lon=(ds.lon % 360))
-                ds = ds.sortby('lon')
+            if lon_convention == '360':
+                # Force to 0..360
+                lon_vals = ds.lon.values
+                if np.any(lon_vals < 0):
+                    ds = ds.assign_coords(lon=(ds.lon % 360))
+                    ds = ds.sortby('lon')
+            elif lon_convention == '-180':
+                # Force to -180..180
+                lon_vals = ds.lon.values
+                if np.any(lon_vals > 180):
+                    ds = ds.assign_coords(lon=(((ds.lon + 180) % 360) - 180))
+                    ds = ds.sortby('lon')
 
         self._dataset = ds
         return ds

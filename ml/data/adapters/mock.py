@@ -14,6 +14,9 @@ from .base import DatasetAdapter
 class MockSurfaceAdapter(DatasetAdapter):
     """Adapter for the synthetic surface observations."""
 
+    def __init__(self, name: str, config: dict = None, data_dir: str = "data/raw"):
+        super().__init__(name, config or {}, data_dir)
+
     def load(self, path: str) -> xr.Dataset:
         self._dataset = xr.open_dataset(path)
         return self._dataset
@@ -36,18 +39,24 @@ class MockSurfaceAdapter(DatasetAdapter):
             },
         }
 
-    def select_variables(self, variables: List[str]) -> xr.Dataset:
+    def get_provenance(self) -> dict:
+        return {
+            "dataset_name": "Mock Surface Dataset",
+            "provider": "OceanEmbed Demo",
+            "status": "synthetic",
+        }
+
+    def select_variables(self) -> xr.Dataset:
         if self._dataset is None:
             raise ValueError("No dataset loaded.")
-        # Only select variables that actually exist in the dataset
-        available = [v for v in variables if v in self._dataset.data_vars]
-        ds = self._dataset[available]
-        self._dataset = ds
-        return ds
+        return super().select_variables()
 
 
 class MockSubsurfaceAdapter(DatasetAdapter):
     """Adapter for the synthetic target subsurface temperature."""
+
+    def __init__(self, name: str, config: dict = None, data_dir: str = "data/raw"):
+        super().__init__(name, config or {}, data_dir)
 
     def load(self, path: str) -> xr.Dataset:
         self._dataset = xr.open_dataset(path)
@@ -62,10 +71,14 @@ class MockSubsurfaceAdapter(DatasetAdapter):
             "depth_levels": list(self._dataset.depth.values) if 'depth' in self._dataset.coords else [],
         }
 
-    def select_variables(self, variables: List[str]) -> xr.Dataset:
+    def get_provenance(self) -> dict:
+        return {
+            "dataset_name": "Mock Subsurface Dataset",
+            "provider": "OceanEmbed Demo",
+            "status": "synthetic",
+        }
+
+    def select_variables(self) -> xr.Dataset:
         if self._dataset is None:
             raise ValueError("No dataset loaded.")
-        available = [v for v in variables if v in self._dataset.data_vars]
-        ds = self._dataset[available]
-        self._dataset = ds
-        return ds
+        return super().select_variables()

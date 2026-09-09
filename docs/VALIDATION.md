@@ -48,3 +48,12 @@
 4. Temperature profile: prediction + truth + uncertainty
 5. Temporal RMSE evolution
 6. Cross-region comparison bar chart
+
+## Validation Methodology & Policy
+
+- **Depth Interpolation Policy**: ARGO profiles are strictly interpolated to the exact 15 standard model depths (0m to 1000m).
+- **Matching Strategy**: Floats are matched by region, reconstruction date, and a temporal window of +/- 3 days.
+- **Convention**: Error is always calculated as predictedTemperature - observedTemperature.
+- **Metrics**: RMSE, MAE, Bias, Correlation, and R-squared are calculated from strictly paired observation/prediction arrays.
+- **Demo Mode**: If the live backend is unavailable, the application falls back to a deterministic synthetic dataset sampled directly from the current reconstruction result with added deterministic Gaussian noise, ensuring reproducibility for demonstration purposes without claiming real scientific validation.
+- **Scientific Distinction**: GLORYS is the training target; ARGO is the independent validation observation.

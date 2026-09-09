@@ -20,3 +20,5 @@ _No known issues yet. Project just initialized._
 
 **Fix**:
 ```
+
+- Phase 6: ARGO Backend is mocked via demo mode; no real ARGO floats are currently fetched from the python backend.

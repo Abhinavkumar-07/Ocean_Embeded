@@ -1,16 +1,21 @@
 import React from 'react';
 import { Home, Satellite, Layers, Box, CheckCircle, Activity, Download, FileText } from 'lucide-react';
 
-export const Sidebar = () => {
+interface SidebarProps {
+  activePage: string;
+  setActivePage: (page: string) => void;
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({ activePage, setActivePage }) => {
   const navItems = [
-    { icon: <Home size={18} />, text: 'Dashboard', active: true },
-    { icon: <Satellite size={18} />, text: 'Satellite Data' },
-    { icon: <Activity size={18} />, text: 'Temperature Reconstruction' },
-    { icon: <Box size={18} />, text: '3D Ocean View' },
-    { icon: <CheckCircle size={18} />, text: 'Validation (ARGO)' },
-    { icon: <Layers size={18} />, text: 'Analysis & Insights' },
-    { icon: <Download size={18} />, text: 'Download Data' },
-    { icon: <FileText size={18} />, text: 'Documentation' },
+    { icon: <Home size={18} />, text: 'Dashboard', id: 'Dashboard' },
+    { icon: <Satellite size={18} />, text: 'Satellite Data', id: 'Satellite' },
+    { icon: <Activity size={18} />, text: 'Temperature Reconstruction', id: 'Temperature' },
+    { icon: <Box size={18} />, text: '3D Ocean View', id: '3DOcean' },
+    { icon: <CheckCircle size={18} />, text: 'Validation (ARGO)', id: 'Validation' },
+    { icon: <Layers size={18} />, text: 'Analysis & Insights', id: 'Analysis' },
+    { icon: <Download size={18} />, text: 'Download Data', id: 'Download' },
+    { icon: <FileText size={18} />, text: 'Documentation', id: 'Documentation' },
   ];
 
   return (
@@ -18,16 +23,18 @@ export const Sidebar = () => {
       <div style={{ padding: '2rem 1rem', flex: 1 }}>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {navItems.map((item, i) => (
-            <li key={i} style={{ 
+            <li key={i} 
+                onClick={() => setActivePage(item.id)}
+                style={{ 
               display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', 
               borderRadius: '8px', cursor: 'pointer',
-              background: item.active ? 'rgba(56, 189, 248, 0.1)' : 'transparent',
-              color: item.active ? 'var(--accent-cyan)' : 'var(--text-secondary)',
-              border: item.active ? '1px solid var(--accent-cyan)' : '1px solid transparent',
+              background: activePage === item.id ? 'rgba(56, 189, 248, 0.1)' : 'transparent',
+              color: activePage === item.id ? 'var(--accent-cyan)' : 'var(--text-secondary)',
+              border: activePage === item.id ? '1px solid var(--accent-cyan)' : '1px solid transparent',
               transition: 'all 0.2s ease'
             }}>
               {item.icon}
-              <span style={{ fontSize: '0.9rem', fontWeight: item.active ? 500 : 400 }}>{item.text}</span>
+              <span style={{ fontSize: '0.9rem', fontWeight: activePage === item.id ? 500 : 400 }}>{item.text}</span>
             </li>
           ))}
         </ul>

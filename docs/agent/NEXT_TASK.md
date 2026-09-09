@@ -1,8 +1,13 @@
 # NEXT TASK
 
-**Current phase**: Phase 0 — Repository Initialization (completing)
+## Current Phase
+Phase 8: Data & ML Foundation Audit (Step 2: Dataset schema + adapters)
 
-**Task**: Set up Python environment, create ML module stubs, FastAPI backend skeleton, React+Vite frontend skeleton, YAML configs, test structure.
+## Exact Next Steps
+1. Create a clean dataset adapter abstraction (`ml/data/adapters.py` or similar).
+2. The architecture should allow GLORYS, ARGO, and satellite datasets to be loaded through documented adapters.
+3. Define explicit schemas for surface input, target temperature, etc.
+4. Establish QC framework for missing values without silently dropping them.
 
 **Read**:
 - CURRENT_STATUS.md
@@ -26,3 +31,5 @@
 - `pytest tests/` runs (even if no tests yet)
 - `uvicorn backend.app.main:app` starts and /health returns 200
 - `npm run dev` in frontend/ starts dev server
+
+- Evaluate Phase 7 (Model & Embeddings, Analysis & Insights).

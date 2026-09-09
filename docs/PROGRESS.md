@@ -93,3 +93,7 @@
 - [ ] End-to-end testing
 - [ ] Quality gates
 - [ ] Presentation figures
+
+- Phase 6 (ARGO Validation) is completed, delivering deterministic ARGO matching, depth interpolation, and full metric calculation UI.
+
+- Pre-Phase 7 UI quality pass and end-to-end integration complete.

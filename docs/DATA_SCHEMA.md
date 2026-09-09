@@ -2,12 +2,12 @@
 
 ## Coordinate Conventions
 
-| Dimension | Name | Range | Units |
+| Dimension | Canonical Name | Range / Convention | Units |
 |:---|:---|:---|:---|
-| Longitude | `lon` | 45.0 → 105.0 | degrees East |
-| Latitude | `lat` | 5.0 → 30.0 | degrees North |
-| Time | `time` | datetime64[ns] | UTC midnight |
-| Depth | `depth` | 0 → 1000 | meters |
+| Longitude | `lon` | 45.0 → 105.0 (Configurable mapping: e.g. -180/180 or 0/360) | degrees East |
+| Latitude | `lat` | 5.0 → 30.0 (Strict South → North ordering) | degrees North |
+| Time | `time` | datetime64[ns] (Strict monotonic increasing) | UTC midnight |
+| Depth | `depth` | 0 → 1000 (Strict shallow → deep ordering) | meters |
 
 ## Grid Dimensions
 
@@ -28,11 +28,13 @@ STANDARD_DEPTHS = [0, 5, 10, 20, 30, 50, 75, 100, 125, 150, 200, 300, 500, 700, 
 
 ## Input Channels
 
+### A. Surface Input Dataset Schema
+Must contain the following canonical variables, mapped from their provider-specific equivalents:
 ```python
 INPUT_VARIABLES = [
     'sst',        # Sea Surface Temperature (°C)
     'sss',        # Sea Surface Salinity (PSU)
-    'ssh',        # Sea Surface Height (m)
+    'ssh',        # Sea Surface Height / Anomaly (m)
     'current_u',  # Surface current eastward (m/s)
     'current_v',  # Surface current northward (m/s)
     'wind_u',     # Surface wind eastward (m/s)
@@ -40,12 +42,44 @@ INPUT_VARIABLES = [
 ]
 ```
 
-Optional mask channels:
+### B. Target Subsurface Dataset Schema
 ```python
-MASK_VARIABLES = [
-    'sst_mask',   # SST validity mask (0/1)
+TARGET_VARIABLES = [
+    'target_temp', # Subsurface Temperature at specified depths (°C)
 ]
 ```
+
+### C. QC and Missing Data Masks
+Missing values (`NaN`) must NEVER be silently converted to 0 during adapter load. They are preserved in the xarray Dataset, and an explicit QC mask is maintained.
+```python
+MASK_VARIABLES = [
+    '<var>_mask', # 1 = Valid, 0 = Missing/Rejected for any <var>
+]
+```
+
+## Provenance Schema
+Every DatasetAdapter MUST expose a `.get_provenance()` dictionary matching this schema:
+```json
+{
+  "dataset_name": "string",
+  "provider": "string",
+  "product_id": "string",
+  "dataset_id": "string",
+  "variable_names_original": ["string"],
+  "variable_names_canonical": ["string"],
+  "source_url": "string",
+  "download_timestamp": "string (ISO-8601)",
+  "spatial_extent": {"lon_min": 0, "lon_max": 0, "lat_min": 0, "lat_max": 0},
+  "temporal_extent": {"start": "string", "end": "string"},
+  "resolution": "string",
+  "units": {"canonical_var": "string"},
+  "coordinate_conventions": "string",
+  "depth_convention": "string",
+  "processing_version": "string",
+  "checksum": "string (optional)"
+}
+```
+If metadata is unavailable, represent it as `"unavailable"` rather than fabricating.
 
 ## Tensor Shapes
 
@@ -118,3 +152,6 @@ data/samples/demo/
 ├── metrics.json
 └── quality.json
 ```
+
+## Validation Types
+Added ValidationPoint and ValidationResult with full support for depth metrics, band metrics, and metadata.

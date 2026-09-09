@@ -36,11 +36,28 @@ cp .env.example .env
 # Edit .env with your credentials and settings
 ```
 
-## Copernicus Marine Account
+## Copernicus Marine Account Setup
 
-1. Register at https://data.marine.copernicus.eu/
-2. Set `CMEMS_USERNAME` and `CMEMS_PASSWORD` in `.env`
-3. Run `python scripts/download_data.py --test` to verify access
+To download real ocean datasets, you must authenticate with the Copernicus Marine Environment Monitoring Service (CMEMS).
+Do NOT place your password in source code or commit it to version control.
+
+1. Create or sign into your account at [data.marine.copernicus.eu](https://data.marine.copernicus.eu/).
+2. Ensure the Copernicus Marine Toolbox is installed (`pip install copernicusmarine`).
+3. Run the local login command in your terminal:
+   ```bash
+   copernicusmarine login
+   ```
+   This will securely store your credentials in your local user directory.
+4. Alternatively, you can use the standard environment variables:
+   ```bash
+   export COPERNICUSMARINE_SERVICE_USERNAME="your_username"
+   export COPERNICUSMARINE_SERVICE_PASSWORD="your_password"
+   ```
+5. Verify authentication by running the dataset inspection script:
+   ```bash
+   python scripts/inspect_dataset.py --verify-auth
+   ```
+6. Only after verification, run the tiny Bay of Bengal dataset download.
 
 ## Running
 

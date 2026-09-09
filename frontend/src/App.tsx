@@ -1,9 +1,13 @@
-import React from 'react';
-import { AdvancedDashboard } from './AdvancedDashboard';
+import { AdvancedDashboard } from './AdvancedDashboard'
+import { OceanProvider } from './store/OceanContext';
 import './index.css';
 
 function App() {
-  return <AdvancedDashboard />;
+  return (
+    <OceanProvider>
+      <AdvancedDashboard />
+    </OceanProvider>
+  );
 }
 
 export default App;

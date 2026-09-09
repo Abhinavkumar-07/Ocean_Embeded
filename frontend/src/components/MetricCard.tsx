@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const MetricCard = ({ icon, title, value, sub, small = false }: any) => {
   return (
     <div style={{ 

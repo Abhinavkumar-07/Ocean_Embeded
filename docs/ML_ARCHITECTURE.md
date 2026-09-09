@@ -1,5 +1,20 @@
 # ML ARCHITECTURE
 
+> [!WARNING] 
+> **Implementation Status: PRECOMPUTED DEMO**
+> 
+> **Current Prototype:**
+> - Deterministic demo inference is used across the application.
+> - Architecture selection in the UI correctly alters the deterministic configuration/output signature.
+> - **No trained neural network** is currently executing.
+> - **No PyTorch inference** is currently connected to the application backend.
+> 
+> **Future ML Implementation:**
+> The architectures detailed below (Baseline CNN, CNN + GRU, OceanEmbed depth-aware architecture) represent the intended real ML topologies to be trained and deployed. They are not yet fully implemented.
+> 
+> **First Real-Data Experiment (Pending):**
+> Before implementing the full training pipeline, the first milestone will be an overfit test using a tiny vertical slice of real data (e.g. 1 sample → 1 batch → Baseline CNN → Loss calculation).
+
 ## Model Overview
 
 ### Input Tensor
@@ -157,3 +172,6 @@ Surface:     0, 5, 10, 20, 30, 50 m
 Thermocline: 75, 100, 125, 150, 200, 300 m
 Deep:        500, 700, 1000 m
 ```
+
+## Validation
+The validation layer has been integrated in Phase 6, explicitly separating GLORYS (training target) from ARGO (independent validation).

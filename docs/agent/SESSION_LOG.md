@@ -34,3 +34,14 @@
 - Repository is brand new — no existing code to preserve
 - Documentation structure is complete — update CURRENT_STATUS.md after changes
 - CMEMS account availability unknown — may need synthetic data
+
+- Implemented Phase 6: ARGO Validation Page, matching engine, and Recharts integration.
+
+- Executed Pre-Phase 7 Integration & UI quality pass (Temperature UI fixes, persistence checks, Insights demo labeling).
+
+- Implemented Phase 7: Model & Embeddings + Analysis & Insights. Added `OceanEmbeddingsPage`, calculated active metrics for Thermocline Proxy and Thermal Content Proxy. 
+
+- **Phase 8: Data & ML Foundation Audit Completed**. 
+  - *Status*: Real data unavailable. 
+  - *Next step*: Build Real Dataset Adapters and schemas.
+  - *First ML target*: Tiny-batch overfit test on a minimal subset.

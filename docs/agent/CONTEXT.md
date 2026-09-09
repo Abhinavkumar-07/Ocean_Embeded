@@ -30,3 +30,5 @@ DO NOT:
 - Fabricate metrics or validation results
 - Build frontend before ML pipeline works
 - Hardcode experiment parameters in Python
+
+- Phase 6 (ARGO Validation) completed. Next phase involves broader analysis, reports, or Model/Embeddings views.

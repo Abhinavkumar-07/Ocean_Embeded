@@ -7,10 +7,11 @@ interface HeatmapProps {
   width?: number;
   height?: number;
   colorScale?: 'turbo' | 'viridis' | 'ocean';
+  style?: React.CSSProperties;
 }
 
 // Very simple linear interpolation for a deep ocean color scale
-const getColor = (value: number, min: number, max: number, scale: string) => {
+const getColor = (value: number | null, min: number, max: number, scale: string) => {
   if (value === null || isNaN(value)) return 'transparent';
   
   const norm = Math.max(0, Math.min(1, (value - min) / (max - min)));
@@ -45,6 +46,7 @@ export const Heatmap: React.FC<HeatmapProps & { hideLegend?: boolean }> = ({
   colorScale = 'ocean',
   hideLegend = false,
   style
+
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 

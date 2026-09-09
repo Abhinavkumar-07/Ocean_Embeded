@@ -18,11 +18,12 @@ Demo mode settings: pre-computed dates, locations, display options.
 
 ## Environment Variables
 
-See `.env.example` for all supported variables:
-- `CMEMS_USERNAME` / `CMEMS_PASSWORD` — Copernicus Marine credentials
+See `.env.example` for supported application variables:
 - `APP_MODE` — development / production / demo
 - `MODEL_CHECKPOINT` — path to model weights
 - `DEVICE` — cpu / cuda / cuda:0
+
+> **Note on Data Credentials**: We use the official `copernicusmarine` toolbox. Do not hardcode credentials. Use `copernicusmarine login` locally, or export `COPERNICUSMARINE_SERVICE_USERNAME` and `COPERNICUSMARINE_SERVICE_PASSWORD`.
 
 ## Precedence
 

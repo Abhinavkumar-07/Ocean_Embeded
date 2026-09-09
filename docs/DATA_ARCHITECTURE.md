@@ -29,6 +29,7 @@ Every dataset adapter implements:
 class DatasetAdapter:
     def load(path) -> xr.Dataset
     def inspect() -> dict
+    def get_provenance() -> dict  # Ensure provenance metadata is attached
     def select_variables(vars) -> xr.Dataset
     def normalize_coordinates() -> xr.Dataset
     def subset_region(lon_range, lat_range) -> xr.Dataset
@@ -70,3 +71,5 @@ Statistics saved with checkpoint for inference reproducibility.
 3. Normalization uses only training statistics
 4. No future information in temporal interpolation
 5. Target not included as input
+6. Strict chronological split (e.g. Train: 2018-2021, Val: 2022, Test: 2023) to prevent autocorrelation leakage.
+7. Support for disjoint spatial splits (e.g. Train on Arabian Sea, Test on Bay of Bengal).

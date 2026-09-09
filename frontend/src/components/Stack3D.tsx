@@ -1,4 +1,3 @@
-import React, { useRef, useEffect } from 'react';
 import { Heatmap } from './Heatmap';
 
 export const Stack3D = ({ inferenceData, depths, activeDepthIndex, onDepthChange }: any) => {

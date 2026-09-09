@@ -91,12 +91,28 @@ def generate_mock_netcdf(output_dir: str, dataset_type: str, domain: dict, n_day
     return filepath
 
 
-def download_cmems_data(config: dict):
+def download_cmems_data(config_name: str, output_dir: str):
     """
     Actual CMEMS download logic using copernicusmarine client.
     Requires credentials.
     """
-    print("Attempting to download data from CMEMS...")
+    import yaml
+    
+    config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'configs', 'datasets.yaml')
+    with open(config_path, 'r') as f:
+        datasets_config = yaml.safe_load(f).get('datasets', {})
+        
+    if config_name not in datasets_config:
+        print(f"ERROR: Dataset '{config_name}' not found in datasets.yaml")
+        return False
+        
+    ds_config = datasets_config[config_name]
+    dataset_id = ds_config.get('dataset_id')
+    variables = list(ds_config.get('variable_mapping', {}).keys())
+    
+    print(f"\nAttempting to download {config_name} from CMEMS...")
+    print(f"Dataset ID: {dataset_id}")
+    print(f"Variables: {variables}")
     
     try:
         import copernicusmarine
@@ -106,22 +122,40 @@ def download_cmems_data(config: dict):
         return False
         
     print("Checking CMEMS credentials...")
-    # NOTE: Actual download logic would go here, utilizing copernicusmarine.subset()
-    # However, since this requires an account, we will fail gracefully if unauthenticated.
     try:
         copernicusmarine.login()
-        # copernicusmarine.subset(...)
+        
+        # Bay of Bengal Jan 2022 subset
+        print(f"Downloading Bay of Bengal subset for Jan 2022...")
+        
+        # We specify minimum necessary parameters to prevent downloading globally.
+        copernicusmarine.subset(
+            dataset_id=dataset_id,
+            variables=variables,
+            minimum_longitude=80.0,
+            maximum_longitude=95.0,
+            minimum_latitude=10.0,
+            maximum_latitude=20.0,
+            start_datetime="2022-01-01T00:00:00",
+            end_datetime="2022-01-31T23:59:59",
+            minimum_depth=0.0,
+            maximum_depth=1000.0,
+            output_directory=output_dir,
+            output_filename=f"{config_name}_bob_jan2022.nc",
+            force_download=True
+        )
+        print(f"✅ Successfully downloaded {config_name} subset to {output_dir}")
+        return True
     except Exception as e:
-        print(f"CMEMS Authentication or download failed: {e}")
+        print(f"❌ CMEMS Authentication or download failed: {e}")
         print("Please configure your credentials using 'copernicusmarine login'")
         return False
-        
-    return True
 
 
 def main():
     parser = argparse.ArgumentParser(description="Download Ocean Data")
     parser.add_argument("--mock", action="store_true", help="Generate synthetic NetCDF files instead of downloading")
+    parser.add_argument("--dataset", choices=["glorys", "ostia", "smos", "altimetry", "ascat", "globcurrent"], default="glorys", help="Which dataset to download (default: glorys)")
     parser.add_argument("--output", default="data/raw", help="Output directory")
     args = parser.parse_args()
 
@@ -134,7 +168,7 @@ def main():
         print("\nDataset generation complete.")
         print(f"Files saved in: {os.path.abspath(args.output)}")
     else:
-        success = download_cmems_data({})
+        success = download_cmems_data(args.dataset, args.output)
         if not success:
             print("\nTo continue development without CMEMS credentials, run:")
             print("  python scripts/download_data.py --mock")

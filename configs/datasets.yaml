@@ -1,0 +1,101 @@
+# CMEMS Dataset Mappings
+# This configuration drives the Real Data Adapters to map from CMEMS provider
+# variable names to OceanEmbed canonical variable names.
+
+datasets:
+  # 1. Target Subsurface (GLORYS)
+  glorys:
+    product_id: "GLOBAL_MULTIYEAR_PHY_001_030"
+    dataset_id: "cmems_mod_glo_phy_my_0.083_P1D-m"
+    provider: "CMEMS"
+    coordinate_conventions:
+      lon: ["longitude", "lon"]
+      lat: ["latitude", "lat"]
+      time: ["time"]
+      depth: ["depth"]
+    variable_mapping:
+      thetao: "target_temp"
+    lon_convention: "180" # Maps back to 0-360 internally if needed, but specifies source format
+    depth_convention: "positive_down"
+
+  # 2. Surface Observations (OSTIA SST)
+  ostia:
+    product_id: "SST_GLO_SST_L4_REP_OBSERVATIONS_010_011"
+    dataset_id: "C3S-GLO-SST-L4-REP-OBS-SST"
+    provider: "CMEMS"
+    coordinate_conventions:
+      lon: ["lon"]
+      lat: ["lat"]
+      time: ["time"]
+    variable_mapping:
+      analysed_sst: "sst"
+    lon_convention: "180"
+
+  # 3. Surface Salinity (SMOS/SMAP)
+  smos:
+    product_id: "MULTIOBS_GLO_PHY_S_SURFACE_MYNRT_015_013"
+    dataset_id: "dataset-sss-ssd-rep-monthly"
+    provider: "CMEMS"
+    coordinate_conventions:
+      lon: ["lon"]
+      lat: ["lat"]
+      time: ["time"]
+    variable_mapping:
+      sos: "sss"
+    lon_convention: "180"
+
+  # 4. Sea Level (Altimetry)
+  altimetry:
+    product_id: "SEALEVEL_GLO_PHY_L4_MY_008_047"
+    dataset_id: "cmems_obs-sl_glo_phy-ssh_my_allsat-l4-duacs-0.25deg_P1D"
+    provider: "CMEMS"
+    coordinate_conventions:
+      lon: ["longitude"]
+      lat: ["latitude"]
+      time: ["time"]
+    variable_mapping:
+      sla: "ssh"
+    lon_convention: "360"
+
+  # 5. Surface Winds (ASCAT)
+  ascat:
+    product_id: "WIND_GLO_WIND_L4_REP_OBSERVATIONS_012_006"
+    dataset_id: "C3S-GLO-WIND_L4-REP-OBS-WIND"
+    provider: "CMEMS"
+    coordinate_conventions:
+      lon: ["lon"]
+      lat: ["lat"]
+      time: ["time"]
+    variable_mapping:
+      eastward_wind: "wind_u"
+      northward_wind: "wind_v"
+    lon_convention: "180"
+
+  # 6. Surface Currents (GlobCurrent)
+  globcurrent:
+    product_id: "MULTIOBS_GLO_PHY_REP_015_004"
+    dataset_id: "dataset-uv-rep-daily"
+    provider: "CMEMS"
+    coordinate_conventions:
+      lon: ["longitude"]
+      lat: ["latitude"]
+      time: ["time"]
+    variable_mapping:
+      ugos: "current_u"
+      vgos: "current_v"
+    lon_convention: "180"
+
+  # 7. Argo Profiles (Validation)
+  argo:
+    product_id: "INSITU_GLO_PHY_TS_DISCRETE_MY_013_001"
+    dataset_id: "cmems_obs-ins_glo_phy-ts_my_argo_irr"
+    provider: "CMEMS / ARGO"
+    coordinate_conventions:
+      lon: ["LONGITUDE"]
+      lat: ["LATITUDE"]
+      time: ["TIME"]
+      depth: ["PRES"]
+    variable_mapping:
+      TEMP: "argo_temp"
+    lon_convention: "180"
+    depth_convention: "positive_down"

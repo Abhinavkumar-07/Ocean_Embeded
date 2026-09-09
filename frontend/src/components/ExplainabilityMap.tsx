@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import axios from 'axios';
 
 interface ExplainabilityMapProps {
     width?: number;
@@ -15,8 +14,9 @@ const ExplainabilityMap: React.FC<ExplainabilityMapProps> = ({ width = 241, heig
         const fetchHeatmap = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get('http://localhost:8000/api/v1/explain');
-                const heatmapData = response.data.heatmap; // 2D array of shape [height][width]
+                const response = await fetch('http://localhost:8000/api/v1/explain');
+                const data = await response.json();
+                const heatmapData = data.heatmap; // 2D array of shape [height][width]
                 
                 if (canvasRef.current && heatmapData) {
                     const ctx = canvasRef.current.getContext('2d');

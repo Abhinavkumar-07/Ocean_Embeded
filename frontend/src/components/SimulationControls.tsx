@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 
 interface SimulationControlsProps {
     onSimulationResult: (data: any) => void;
@@ -14,12 +13,19 @@ const SimulationControls: React.FC<SimulationControlsProps> = ({ onSimulationRes
     const handleSimulate = async () => {
         setLoading(true);
         try {
-            const response = await axios.post('http://localhost:8000/api/v1/simulate', {
-                sst_anomaly: sstAnomaly,
-                wind_anomaly: windAnomaly,
-                current_anomaly: currentAnomaly
+            const response = await fetch('http://localhost:8000/api/v1/simulate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    sst_anomaly: sstAnomaly,
+                    wind_anomaly: windAnomaly,
+                    current_anomaly: currentAnomaly
+                })
             });
-            onSimulationResult(response.data);
+            const data = await response.json();
+            onSimulationResult(data);
         } catch (error) {
             console.error("Simulation error", error);
         } finally {
