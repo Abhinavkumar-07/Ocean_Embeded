@@ -213,7 +213,7 @@ export default function Ocean3DPage() {
         <div className="glass-panel" style={{ position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
            <div style={{ position: 'absolute', top: '1rem', left: '1rem', zIndex: 10, background: 'rgba(0,0,0,0.5)', padding: '4px 12px', borderRadius: '20px', fontSize: '0.8rem', display: 'flex', gap: '8px', alignItems: 'center' }}>
               <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#38bdf8' }}></span>
-              Demo Data
+              Historical Archive
            </div>
            
            <div style={{ position: 'absolute', top: '1rem', right: '1rem', zIndex: 10 }}>

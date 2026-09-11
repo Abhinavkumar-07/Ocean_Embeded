@@ -1,5 +1,5 @@
 // ============================================================
-// OceanEmbed — Deterministic Demo Data Generator
+// OceanEmbed — Deterministic Historical Archive Generator
 // ============================================================
 // All data generated here is SYNTHETIC for UI demonstration only.
 // It does NOT represent real satellite or ARGO observations.

@@ -41,6 +41,13 @@ const initialState: OceanState = {
   reconstructionStatus: 'IDLE',
   reconstructionResult: null,
   validationResult: null,
+
+  // Scenario
+  scenarioInputs: { sstAnomaly: 0, windAnomaly: 0, currentAnomaly: 0 },
+  scenarioResult: null,
+  scenarioActive: false,
+  displayMode: 'baseline',
+  simulationStatus: 'idle',
 };
 
 // ============================================================
@@ -131,6 +138,31 @@ function oceanReducer(state: OceanState, action: OceanAction): OceanState {
     case 'SET_VALIDATION_RESULT':
       return { ...state, validationResult: action.payload };
 
+    case 'SET_SCENARIO_INPUTS':
+      return { ...state, scenarioInputs: action.payload };
+
+    case 'SET_SCENARIO_RESULT':
+      return { ...state, scenarioResult: action.payload };
+
+    case 'SET_SCENARIO_ACTIVE':
+      return { ...state, scenarioActive: action.payload };
+
+    case 'SET_DISPLAY_MODE':
+      return { ...state, displayMode: action.payload };
+
+    case 'SET_SIMULATION_STATUS':
+      return { ...state, simulationStatus: action.payload };
+
+    case 'RESET_SCENARIO':
+      return {
+        ...state,
+        scenarioInputs: { sstAnomaly: 0, windAnomaly: 0, currentAnomaly: 0 },
+        scenarioResult: null,
+        scenarioActive: false,
+        displayMode: 'baseline',
+        simulationStatus: 'idle',
+      };
+
     default:
       return state;
   }
@@ -164,7 +196,13 @@ interface OceanContextValue {
   setError:      (e: string | null) => void;
   setReconstructionStatus: (status: OceanState['reconstructionStatus']) => void;
   setReconstructionResult: (res: OceanState['reconstructionResult']) => void;
-  setValidationResult: (res: any) => void;
+  setValidationResult:   (res: OceanState['validationResult']) => void;
+  setScenarioInputs:     (inputs: OceanState['scenarioInputs']) => void;
+  setScenarioResult:     (res: OceanState['scenarioResult']) => void;
+  setScenarioActive:     (active: boolean) => void;
+  setDisplayMode:        (mode: OceanState['displayMode']) => void;
+  setSimulationStatus:   (status: OceanState['simulationStatus']) => void;
+  resetScenario:         () => void;
 }
 
 const OceanContext = createContext<OceanContextValue | undefined>(undefined);
@@ -199,6 +237,12 @@ export function OceanProvider({ children }: { children: ReactNode }) {
     setReconstructionStatus: (s) => dispatch({ type: 'SET_RECONSTRUCTION_STATUS', payload: s }),
     setReconstructionResult: (r) => dispatch({ type: 'SET_RECONSTRUCTION_RESULT', payload: r }),
     setValidationResult:     (r) => dispatch({ type: 'SET_VALIDATION_RESULT',    payload: r }),
+    setScenarioInputs:       (inputs) => dispatch({ type: 'SET_SCENARIO_INPUTS', payload: inputs }),
+    setScenarioResult:       (res)    => dispatch({ type: 'SET_SCENARIO_RESULT', payload: res }),
+    setScenarioActive:       (active) => dispatch({ type: 'SET_SCENARIO_ACTIVE', payload: active }),
+    setDisplayMode:          (mode)   => dispatch({ type: 'SET_DISPLAY_MODE', payload: mode }),
+    setSimulationStatus:     (status) => dispatch({ type: 'SET_SIMULATION_STATUS', payload: status }),
+    resetScenario:           ()       => dispatch({ type: 'RESET_SCENARIO' }),
   };
 
   return (

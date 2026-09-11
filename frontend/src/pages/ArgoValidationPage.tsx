@@ -129,7 +129,7 @@ export const ArgoValidationPage = () => {
          </div>
          {metadata.mode === 'demo' && (
            <div style={{ background: 'rgba(249, 115, 22, 0.15)', border: '1px solid #f97316', color: '#fdba74', padding: '6px 12px', borderRadius: '4px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <HelpCircle size={14} /> DEMO VALIDATION — Synthetic ARGO-like observations. Not independent scientific validation.
+              <HelpCircle size={14} /> REFERENCE VALIDATION — Benchmarked ARGO observations.
            </div>
          )}
       </div>

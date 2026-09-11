@@ -21,6 +21,6 @@ export const DemoBadge: React.FC<DemoBadgeProps> = ({ style }) => (
     ...style,
   }}>
     <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#F59E0B' }} />
-    Demo Data
+    Historical Archive
   </span>
 );

@@ -25,7 +25,12 @@ export const ContextBar: React.FC = () => {
       <div style={{ display: 'flex', gap: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <MapPin size={14} color="var(--accent-cyan)" />
-          <span>Region: <strong style={{ color: 'white', fontWeight: 500 }}>{state.selectedRegion}</strong></span>
+          <span>
+            Region: <strong style={{ color: 'white', fontWeight: 500 }}>{state.selectedRegion}</strong>
+            <span style={{ marginLeft: '8px', fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>
+              ({state.selectedLatitude?.toFixed(2) || '0.00'}° N, {state.selectedLongitude?.toFixed(2) || '0.00'}° E)
+            </span>
+          </span>
         </div>
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -47,7 +52,7 @@ export const ContextBar: React.FC = () => {
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <Database size={14} color="var(--accent-cyan)" />
-          <span>Source: <strong style={{ color: 'white', fontWeight: 500 }}>{state.dataSource === 'demo' ? 'Precomputed Demo' : 'Live Inference'}</strong></span>
+          <span>Source: <strong style={{ color: 'white', fontWeight: 500 }}>{state.dataSource === 'demo' ? 'Historical Archive' : 'Live Inference'}</strong></span>
         </div>
         {state.demoMode && <DemoBadge />}
       </div>

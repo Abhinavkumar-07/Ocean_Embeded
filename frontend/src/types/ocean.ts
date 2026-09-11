@@ -222,6 +222,23 @@ export interface DataQuality {
   temporalCoverage: number;
 }
 
+// --- Scenario State ---
+export interface ScenarioInputs {
+  sstAnomaly: number;
+  windAnomaly: number;
+  currentAnomaly: number;
+}
+
+export interface ScenarioResult {
+  temperatureField: OceanGrid[];
+  profile: number[];
+  metrics: any;
+  scenarioInputs: ScenarioInputs;
+  createdAt: string;
+}
+
+export type DisplayMode = 'baseline' | 'scenario';
+
 // --- Application State ---
 
 export type DataSource = 'live' | 'demo' | 'research';
@@ -259,6 +276,13 @@ export interface OceanState {
   reconstructionStatus: 'IDLE' | 'LOADING' | 'PREPROCESSING' | 'EMBEDDING' | 'INFERENCE' | 'POST-PROCESSING' | 'COMPLETE' | 'STALE' | 'ERROR';
   reconstructionResult: ReconstructionResult | null;
   validationResult: ValidationResult | null;
+
+  // Scenario Mode
+  scenarioInputs: ScenarioInputs;
+  scenarioResult: ScenarioResult | null;
+  scenarioActive: boolean;
+  displayMode: DisplayMode;
+  simulationStatus: 'idle' | 'running' | 'complete' | 'error';
 }
 
 export type OceanAction =
@@ -282,4 +306,10 @@ export type OceanAction =
   | { type: 'SET_TEMPORAL_WINDOW'; payload: number }
   | { type: 'SET_RECONSTRUCTION_STATUS'; payload: OceanState['reconstructionStatus'] }
   | { type: 'SET_RECONSTRUCTION_RESULT'; payload: ReconstructionResult | null }
-  | { type: 'SET_VALIDATION_RESULT'; payload: ValidationResult | null };
+  | { type: 'SET_VALIDATION_RESULT'; payload: ValidationResult | null }
+  | { type: 'SET_SCENARIO_INPUTS'; payload: ScenarioInputs }
+  | { type: 'SET_SCENARIO_RESULT'; payload: ScenarioResult | null }
+  | { type: 'SET_SCENARIO_ACTIVE'; payload: boolean }
+  | { type: 'SET_DISPLAY_MODE'; payload: DisplayMode }
+  | { type: 'SET_SIMULATION_STATUS'; payload: OceanState['simulationStatus'] }
+  | { type: 'RESET_SCENARIO' };

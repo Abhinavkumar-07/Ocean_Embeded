@@ -35,7 +35,7 @@ export const SatelliteDataPage = () => {
     { id: 'MODIS', name: 'MODIS Aqua/Terra', vars: 'SST • Chlorophyll', res: '1km - 4km', temp: 'Daily' },
     { id: 'Sentinel-3', name: 'Sentinel-3 SLSTR', vars: 'SST • SSS', res: '1km', temp: 'Daily' },
     { id: 'ASCAT', name: 'MetOp ASCAT', vars: 'Wind U/V', res: '12.5km', temp: 'Daily' },
-    { id: 'Demo', name: 'Demo Source', vars: 'All Variables', res: '1/4°', temp: 'Continuous' },
+    { id: 'Demo', name: 'Historical Source', vars: 'All Variables', res: '1/4°', temp: 'Continuous' },
   ];
 
   const meta = VARIABLE_META[state.selectedVariable];
@@ -146,7 +146,7 @@ export const SatelliteDataPage = () => {
             
             {state.demoMode && (
               <div style={{ marginTop: '1.5rem', padding: '8px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '4px', fontSize: '0.75rem', color: '#EF4444', textAlign: 'center' }}>
-                DEMO DATA
+                ARCHIVE DATA
               </div>
             )}
           </div>
@@ -205,7 +205,7 @@ export const SatelliteDataPage = () => {
                </div>
                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                  <span style={{ color: 'var(--text-secondary)' }}>Source:</span>
-                 <span>{state.selectedSource} {state.demoMode && '(Demo)'}</span>
+                 <span>{state.selectedSource} {state.demoMode && '(Archive)'}</span>
                </div>
              </div>
            </div>

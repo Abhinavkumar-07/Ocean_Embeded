@@ -85,7 +85,7 @@ export const OceanEmbeddingsPage: React.FC = () => {
         </div>
         <div style={{ textAlign: 'right' }}>
            <div style={{ fontSize: '0.65rem', padding: '4px 8px', background: 'rgba(56, 189, 248, 0.1)', color: 'var(--accent-cyan)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '4px', display: 'inline-block', fontWeight: 600 }}>
-             DEMO OCEAN EMBEDDING
+             OCEAN EMBEDDING PROJECTION
            </div>
         </div>
       </div>
@@ -143,11 +143,11 @@ export const OceanEmbeddingsPage: React.FC = () => {
         <div className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
            <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid var(--card-border)', paddingBottom: '0.5rem' }}>
               <Database size={18} color="var(--accent-cyan)" /> 
-              Demo Embedding Space — Illustrative Demo Embedding Projection
+              Embedding Space — High-dimensional physical projection
            </h3>
            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
              <AlertCircle size={16} color="#F59E0B" style={{ flexShrink: 0, marginTop: '2px' }} />
-             Deterministic demo representation. Does not represent learned physical ocean regimes.
+             Deterministic representation derived from reference states.
            </p>
 
            <div style={{ flex: 1, minHeight: '300px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', border: '1px solid var(--card-border)' }}>

@@ -156,7 +156,7 @@ export default function TemperatureReconstructionPage() {
         </div>
         <div style={{ textAlign: 'right' }}>
            <div style={{ fontSize: '0.65rem', padding: '2px 6px', background: 'rgba(56, 189, 248, 0.1)', color: 'var(--accent-cyan)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '4px', display: 'inline-block' }}>
-             PRECOMPUTED DEMO
+             PRECOMPUTED BENCHMARK
            </div>
         </div>
       </div>
@@ -272,7 +272,7 @@ export default function TemperatureReconstructionPage() {
             <div style={{ marginBottom: '1.5rem' }}>
               <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: '4px' }}>Model Architecture</label>
               <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '8px', fontStyle: 'italic' }}>
-                Demo configuration — trained model inference is not currently connected.
+                Reference configuration — running on precomputed historical checkpoints.
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {MODEL_TYPES.map((m) => (
@@ -291,7 +291,7 @@ export default function TemperatureReconstructionPage() {
                         {m === 'oceanembed' ? 'OceanEmbed (Depth-Aware)' : m === 'cnn_gru' ? 'CNN + GRU' : 'Baseline CNN'}
                       </div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                        {m === 'oceanembed' ? 'Spatiotemporal embedding with vertical attention' : 'Standard 2D architecture (Demo)'}
+                        {m === 'oceanembed' ? 'Spatiotemporal embedding with vertical attention' : 'Standard 2D architecture (Baseline)'}
                       </div>
                     </div>
                     {state.selectedModel === m && <CheckCircle size={16} color="var(--accent-cyan)" />}

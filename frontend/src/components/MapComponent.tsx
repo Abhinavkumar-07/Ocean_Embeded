@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useOcean } from '../store/OceanContext';
@@ -7,7 +7,7 @@ import { REGION_CENTERS, VARIABLE_META, REGION_BOUNDS } from '../types/ocean';
 import { SubsurfaceMapLayer } from './SubsurfaceMapLayer';
 
 // Helper component to center map and handle clicks
-const MapController = () => {
+const MapController = ({ onHover }: { onHover?: (lat: number, lon: number) => void }) => {
   const { state, setLocation } = useOcean();
   const map = useMap();
 
@@ -22,6 +22,9 @@ const MapController = () => {
   useMapEvents({
     click(e) {
       setLocation({ lat: e.latlng.lat, lon: e.latlng.lng });
+    },
+    mousemove(e) {
+      if (onHover) onHover(e.latlng.lat, e.latlng.lng);
     }
   });
 
@@ -36,6 +39,7 @@ interface MapComponentProps {
 
 export const MapComponent = ({ surfaceData: _surfaceData, validationMarkers, onMarkerSelect }: MapComponentProps) => {
   const { state } = useOcean();
+  const [hoveredCoords, setHoveredCoords] = useState<{lat: number, lon: number} | null>(null);
   
   const center = REGION_CENTERS[state.selectedRegion];
   const position: [number, number] = [state.selectedLatitude || center.lat, state.selectedLongitude || center.lon];
@@ -47,14 +51,14 @@ export const MapComponent = ({ surfaceData: _surfaceData, validationMarkers, onM
     : null;
 
   return (
-    <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+    <div style={{ width: '100%', height: '100%', position: 'relative' }} onMouseLeave={() => setHoveredCoords(null)}>
       <MapContainer 
         center={[center.lat, center.lon]} 
         zoom={5} 
         style={{ width: '100%', height: '100%', background: '#060B11' }}
         zoomControl={true}
       >
-        <MapController />
+        <MapController onHover={(lat, lon) => setHoveredCoords({ lat, lon })} />
         
         <TileLayer
           attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
@@ -146,6 +150,33 @@ export const MapComponent = ({ surfaceData: _surfaceData, validationMarkers, onM
           <span>{(meta.range[0] + meta.range[1]) / 2}</span>
           <span>{meta.range[1]}</span>
         </div>
+      </div>
+
+      {/* Live Hover Tooltip */}
+      <div style={{
+        position: 'absolute',
+        top: '10px',
+        right: '10px',
+        zIndex: 1000,
+        background: 'rgba(6, 11, 17, 0.85)',
+        padding: '6px 12px',
+        borderRadius: '6px',
+        border: '1px solid var(--card-border)',
+        color: 'var(--accent-cyan)',
+        fontSize: '0.8rem',
+        fontWeight: 600,
+        pointerEvents: 'none',
+        backdropFilter: 'blur(4px)',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.5)'
+      }}>
+        <div style={{ color: 'white', fontSize: '0.7rem', marginBottom: '2px', opacity: 0.7 }}>
+          {hoveredCoords ? 'CURSOR LOCATION' : 'SELECTED LOCATION'}
+        </div>
+        {hoveredCoords ? (
+          <>{hoveredCoords.lat.toFixed(3)}° {hoveredCoords.lat >= 0 ? 'N' : 'S'}, {hoveredCoords.lon.toFixed(3)}° {hoveredCoords.lon >= 0 ? 'E' : 'W'}</>
+        ) : (
+          <>{position[0].toFixed(3)}° {position[0] >= 0 ? 'N' : 'S'}, {position[1].toFixed(3)}° {position[1] >= 0 ? 'E' : 'W'}</>
+        )}
       </div>
     </div>
   );
