@@ -14,12 +14,20 @@ class ThermoclineWeightedLoss(nn.Module):
         self.thermo_weight = thermo_weight
         self.deep_weight = deep_weight
 
-    def forward(self, pred: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+    def forward(self, pred: torch.Tensor, target: torch.Tensor, mask: torch.Tensor = None) -> torch.Tensor:
         # pred, target shape: (B, D, H, W)
         
         # Calculate standard MSE per depth level
         mse = F.mse_loss(pred, target, reduction='none') # (B, D, H, W)
-        mse_per_depth = mse.mean(dim=(0, 2, 3)) # (D,)
+        
+        if mask is not None:
+            # Mask out invalid locations (0 = invalid, 1 = valid)
+            mse = mse * mask
+            # Average only over valid pixels for each depth layer
+            valid_pixels_per_depth = mask.sum(dim=(0, 2, 3)).clamp(min=1.0) # (D,)
+            mse_per_depth = mse.sum(dim=(0, 2, 3)) / valid_pixels_per_depth # (D,)
+        else:
+            mse_per_depth = mse.mean(dim=(0, 2, 3)) # (D,)
         
         # We assume 15 depth levels
         if mse_per_depth.shape[0] != 15:
