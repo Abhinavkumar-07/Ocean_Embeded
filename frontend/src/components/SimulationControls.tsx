@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 
+import { fetchSimulation } from '../data/api';
+import { useOcean } from '../store/OceanContext';
+
 interface SimulationControlsProps {
     onSimulationResult: (data: any) => void;
 }
 
 const SimulationControls: React.FC<SimulationControlsProps> = ({ onSimulationResult }) => {
+    const { state, setProfile } = useOcean();
     const [sstAnomaly, setSstAnomaly] = useState<number>(0);
     const [windAnomaly, setWindAnomaly] = useState<number>(0);
     const [currentAnomaly, setCurrentAnomaly] = useState<number>(0);
@@ -13,19 +17,26 @@ const SimulationControls: React.FC<SimulationControlsProps> = ({ onSimulationRes
     const handleSimulate = async () => {
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:8000/api/v1/simulate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    sst_anomaly: sstAnomaly,
-                    wind_anomaly: windAnomaly,
-                    current_anomaly: currentAnomaly
-                })
-            });
-            const data = await response.json();
-            onSimulationResult(data);
+            const response = await fetchSimulation({
+                sst_anomaly: sstAnomaly,
+                wind_anomaly: windAnomaly,
+                current_anomaly: currentAnomaly
+            }, state.selectedDate, state.selectedRegion, state.demoMode);
+            
+            // Generate a synthetic single-column profile for the new simulated grid to update the metrics
+            if (response.data && state.profile?.predicted) {
+                // Instead of messy grid extraction, we apply the exact same anomaly decay 
+                // to our current guaranteed-valid 1D profile
+                const simProfile = state.profile.predicted.map((val, layerIdx) => {
+                   if (layerIdx > 4 || sstAnomaly === 0) return val;
+                   const decay = 1 - (layerIdx / 5);
+                   return val + (sstAnomaly * decay);
+                });
+                
+                setProfile({ ...state.profile, predicted: simProfile });
+            }
+            
+            onSimulationResult(response);
         } catch (error) {
             console.error("Simulation error", error);
         } finally {

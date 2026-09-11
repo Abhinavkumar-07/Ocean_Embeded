@@ -1,6 +1,6 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ScatterChart, Scatter, ZAxis, ReferenceLine } from 'recharts';
 
-export const Charts = ({ type, data }: any) => {
+export const Charts = ({ type, data, onDepthClick }: any) => {
   if (!data || !data.depths) return <div style={{ color: 'var(--text-secondary)' }}>Click map to generate profile...</div>;
 
   // Format data for Recharts
@@ -13,16 +13,20 @@ export const Charts = ({ type, data }: any) => {
   if (type === 'profile') {
     return (
       <ResponsiveContainer width="100%" height={250}>
-        <LineChart data={chartData} layout="vertical" margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+        <LineChart data={chartData} layout="vertical" margin={{ top: 10, right: 10, left: -20, bottom: 0 }} onClick={(e: any) => {
+            if (e && e.activePayload && e.activePayload.length > 0 && onDepthClick) {
+               onDepthClick(e.activePayload[0].payload.depth);
+            }
+        }}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" horizontal={true} vertical={false} />
-          <XAxis type="number" domain={[0, 32]} tick={{ fill: 'var(--text-secondary)', fontSize: 10 }} axisLine={false} tickLine={false} />
+          <XAxis type="number" domain={['dataMin - 1', 'dataMax + 1']} tick={{ fill: 'var(--text-secondary)', fontSize: 10 }} axisLine={false} tickLine={false} />
           <YAxis dataKey="depth" type="category" reversed tick={{ fill: 'var(--text-secondary)', fontSize: 10 }} axisLine={false} tickLine={false} />
           <Tooltip 
             contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: '8px', color: 'white' }}
             itemStyle={{ color: 'white' }}
           />
           <Legend wrapperStyle={{ fontSize: '12px' }} />
-          <Line type="monotone" dataKey="predicted" name="Predicted (OceanEmbed)" stroke="#38BDF8" strokeWidth={2} dot={{ r: 2, fill: '#38BDF8' }} />
+          <Line type="monotone" dataKey="predicted" name="Predicted (OceanEmbed)" stroke="#38BDF8" strokeWidth={2} dot={{ r: 2, fill: '#38BDF8' }} activeDot={{ r: 6, cursor: 'pointer' }} />
           <Line type="monotone" dataKey="observed" name="ARGO (Observed)" stroke="#F97316" strokeWidth={2} dot={{ r: 2, fill: '#F97316' }} />
         </LineChart>
       </ResponsiveContainer>

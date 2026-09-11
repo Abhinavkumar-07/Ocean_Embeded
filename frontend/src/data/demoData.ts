@@ -14,7 +14,7 @@ import { STANDARD_DEPTHS, REGION_BOUNDS } from '../types/ocean';
 
 // --- Seeded PRNG (deterministic) ---
 
-function hashString(str: string): number {
+export function hashString(str: string): number {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     hash = (hash << 5) - hash + str.charCodeAt(i);
@@ -65,7 +65,7 @@ export function lonAtIndex(j: number): number {
 // Remove latToIndex and lonToIndex as they are unused
 
 // --- Land mask (simplified) ---
-function isLand(lat: number, lon: number): boolean {
+export function isLand(lat: number, lon: number): boolean {
   // Very rough Indian subcontinent mask
   if (lat > 8 && lat < 28 && lon > 72 && lon < 78 && lat > (lon - 64)) return true;
   if (lat > 20 && lon > 55 && lon < 72) return true; // Arabian peninsula
@@ -107,7 +107,7 @@ export function generateSurfaceGrid(variable: DisplayVariable, date: string, reg
   return grid;
 }
 
-function generatePointValue(variable: DisplayVariable, lat: number, lon: number, dayOfYear: number): number {
+export function generatePointValue(variable: DisplayVariable, lat: number, lon: number, dayOfYear: number): number {
   const seasonal = Math.sin((dayOfYear / 365) * 2 * Math.PI);
 
   switch (variable) {
@@ -148,7 +148,7 @@ function generatePointValue(variable: DisplayVariable, lat: number, lon: number,
   }
 }
 
-function getDayOfYear(dateStr: string): number {
+export function getDayOfYear(dateStr: string): number {
   const d = new Date(dateStr);
   const start = new Date(d.getFullYear(), 0, 0);
   return Math.floor((d.getTime() - start.getTime()) / 86400000);

@@ -247,6 +247,7 @@ export interface OceanState {
 
   // Data (loaded)
   surfaceData: OceanGrid;
+  surfaceMetrics: any | null; // will be typed to SurfaceMetrics in api.ts or context
   inferenceData: OceanGrid[];
   depths: number[];
   profile: TemperatureProfile | null;
@@ -271,6 +272,7 @@ export type OceanAction =
   | { type: 'SET_TIME_RANGE';  payload: { start: string; end: string } }
   | { type: 'SET_DEMO_MODE';   payload: boolean }
   | { type: 'SET_SURFACE_DATA'; payload: OceanGrid }
+  | { type: 'SET_SURFACE_METRICS'; payload: any | null }
   | { type: 'SET_INFERENCE_DATA'; payload: { data: OceanGrid[]; depths: number[] } }
   | { type: 'SET_PROFILE';     payload: TemperatureProfile | null }
   | { type: 'SET_LOADING';     payload: boolean }

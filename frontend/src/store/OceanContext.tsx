@@ -11,7 +11,7 @@ import { STANDARD_DEPTHS } from '../types/ocean';
 const initialState: OceanState = {
   // Selection
   selectedSource: 'MODIS',
-  selectedDate: '2020-02-15',
+  selectedDate: '2022-01-07',
   selectedRegion: 'Bay of Bengal',
   selectedLatitude: 15.0,
   selectedLongitude: 88.0,
@@ -29,6 +29,7 @@ const initialState: OceanState = {
 
   // Data
   surfaceData: [],
+  surfaceMetrics: null,
   inferenceData: [],
   depths: [...STANDARD_DEPTHS],
   profile: null,
@@ -56,12 +57,22 @@ function oceanReducer(state: OceanState, action: OceanAction): OceanState {
     case 'SET_REGION':
       return { ...state, selectedRegion: action.payload };
 
-    case 'SET_LOCATION':
+    case 'SET_LOCATION': {
+      const { lat, lon } = action.payload;
+      let newRegion = state.selectedRegion;
+      
+      // Auto-switch region based on longitude to make map clicking more intuitive
+      if (lon < 78 && state.selectedRegion === 'Bay of Bengal') newRegion = 'Arabian Sea';
+      else if (lon >= 78 && state.selectedRegion === 'Arabian Sea') newRegion = 'Bay of Bengal';
+      else if (state.selectedRegion === 'North Indian Ocean') newRegion = 'North Indian Ocean'; // Keep full view if selected
+
       return {
         ...state,
-        selectedLatitude: action.payload.lat,
-        selectedLongitude: action.payload.lon,
+        selectedLatitude: lat,
+        selectedLongitude: lon,
+        selectedRegion: newRegion,
       };
+    }
 
     case 'SET_DEPTH': {
       const idx = STANDARD_DEPTHS.indexOf(action.payload as typeof STANDARD_DEPTHS[number]);
@@ -86,6 +97,9 @@ function oceanReducer(state: OceanState, action: OceanAction): OceanState {
 
     case 'SET_SURFACE_DATA':
       return { ...state, surfaceData: action.payload };
+      
+    case 'SET_SURFACE_METRICS':
+      return { ...state, surfaceMetrics: action.payload };
 
     case 'SET_INFERENCE_DATA':
       return { ...state, inferenceData: action.payload.data, depths: action.payload.depths };
@@ -143,6 +157,7 @@ interface OceanContextValue {
   setTemporalWindow: (w: number) => void;
   setPage:       (page: string) => void;
   setSurfaceData:(data: OceanGrid) => void;
+  setSurfaceMetrics:(data: any | null) => void;
   setInferenceData: (data: OceanGrid[], depths: number[]) => void;
   setProfile:    (p: TemperatureProfile | null) => void;
   setLoading:    (l: boolean) => void;
@@ -176,6 +191,7 @@ export function OceanProvider({ children }: { children: ReactNode }) {
     setTemporalWindow:(w)   => dispatch({ type: 'SET_TEMPORAL_WINDOW', payload: w }),
     setPage:         (p)    => dispatch({ type: 'SET_PAGE',           payload: p }),
     setSurfaceData:  (d)    => dispatch({ type: 'SET_SURFACE_DATA',   payload: d }),
+    setSurfaceMetrics:(d)   => dispatch({ type: 'SET_SURFACE_METRICS', payload: d }),
     setInferenceData:(d, depths) => dispatch({ type: 'SET_INFERENCE_DATA', payload: { data: d, depths } }),
     setProfile:      (p)    => dispatch({ type: 'SET_PROFILE',        payload: p }),
     setLoading:      (l)    => dispatch({ type: 'SET_LOADING',        payload: l }),

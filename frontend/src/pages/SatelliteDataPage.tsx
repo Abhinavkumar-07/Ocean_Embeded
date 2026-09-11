@@ -21,9 +21,9 @@ export const SatelliteDataPage = () => {
     // Simulate fetching a time series for this location
     const fetchTS = async () => {
       try {
-        const res = await fetchProfile(state.selectedLatitude, state.selectedLongitude, state.selectedDate);
+        const data = await fetchProfile(state.selectedLatitude, state.selectedLongitude, state.selectedDate, state.demoMode);
         // We'll reuse the profile shape as time-series just to show a chart, or build a custom one
-        setTimeSeries(res.profile);
+        setTimeSeries(data.profile);
       } catch (e) {
         console.error(e);
       }

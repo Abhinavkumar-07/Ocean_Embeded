@@ -4,6 +4,8 @@ import 'leaflet/dist/leaflet.css';
 import { useOcean } from '../store/OceanContext';
 import { REGION_CENTERS, VARIABLE_META, REGION_BOUNDS } from '../types/ocean';
 
+import { SubsurfaceMapLayer } from './SubsurfaceMapLayer';
+
 // Helper component to center map and handle clicks
 const MapController = () => {
   const { state, setLocation } = useOcean();
@@ -39,6 +41,11 @@ export const MapComponent = ({ surfaceData: _surfaceData, validationMarkers, onM
   const position: [number, number] = [state.selectedLatitude || center.lat, state.selectedLongitude || center.lon];
   const meta = VARIABLE_META[state.selectedVariable];
 
+  const isSubsurface = state.selectedDepthIndex > 0;
+  const activeSubsurfaceData = isSubsurface && state.inferenceData.length > state.selectedDepthIndex 
+    ? state.inferenceData[state.selectedDepthIndex] 
+    : null;
+
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
       <MapContainer 
@@ -54,13 +61,20 @@ export const MapComponent = ({ surfaceData: _surfaceData, validationMarkers, onM
           url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
         />
         
-        {/* NASA GIBS Sea Surface Temperature (GHRSST) Overlay */}
-        <TileLayer
-          attribution='&copy; <a href="https://earthdata.nasa.gov/gibs">NASA EOSDIS GIBS</a>'
-          url="https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GHRSST_L4_MUR_Sea_Surface_Temperature/default/2020-01-15/GoogleMapsCompatible_Level7/{z}/{y}/{x}.png"
-          opacity={0.65}
-          maxNativeZoom={7}
-        />
+        {/* Only show Surface NASA GIBS if we are at depth 0 */}
+        {!isSubsurface && (
+          <TileLayer
+            attribution='&copy; <a href="https://earthdata.nasa.gov/gibs">NASA EOSDIS GIBS</a>'
+            url="https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GHRSST_L4_MUR_Sea_Surface_Temperature/default/2020-01-15/GoogleMapsCompatible_Level7/{z}/{y}/{x}.png"
+            opacity={0.65}
+            maxNativeZoom={7}
+          />
+        )}
+
+        {/* Show our Model's Subsurface reconstruction when a deeper layer is selected */}
+        {isSubsurface && activeSubsurfaceData && (
+           <SubsurfaceMapLayer data={activeSubsurfaceData} region={state.selectedRegion} />
+        )}
         
         {/* Standard Selection Marker (Reticle) */}
         {!validationMarkers && position && (
