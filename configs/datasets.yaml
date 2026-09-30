@@ -6,7 +6,7 @@ datasets:
   # 1. Target Subsurface (GLORYS)
   glorys:
     product_id: "GLOBAL_MULTIYEAR_PHY_001_030"
-    dataset_id: "cmems_mod_glo_phy_my_0.083_P1D-m"
+    dataset_id: "cmems_mod_glo_phy_my_0.083deg_P1D-m"
     provider: "CMEMS"
     coordinate_conventions:
       lon: ["longitude", "lon"]
@@ -31,10 +31,10 @@ datasets:
       analysed_sst: "sst"
     lon_convention: "180"
 
-  # 3. Surface Salinity (SMOS/SMAP)
-  smos:
+  # 3. Surface Salinity (SMOS/Multi-Obs)
+  sss:
     product_id: "MULTIOBS_GLO_PHY_S_SURFACE_MYNRT_015_013"
-    dataset_id: "dataset-sss-ssd-rep-monthly"
+    dataset_id: "cmems_obs-mob_glo_phy-sss_my_multi_P1D"
     provider: "CMEMS"
     coordinate_conventions:
       lon: ["lon"]
@@ -44,27 +44,28 @@ datasets:
       sos: "sss"
     lon_convention: "180"
 
-  # 4. Sea Level (Altimetry)
-  altimetry:
+  # 4. Sea Surface Height (Altimetry)
+  ssh:
     product_id: "SEALEVEL_GLO_PHY_L4_MY_008_047"
-    dataset_id: "cmems_obs-sl_glo_phy-ssh_my_allsat-l4-duacs-0.25deg_P1D"
+    dataset_id: "cmems_obs-sl_glo_phy-ssh_my_allsat-l4-duacs-0.125deg_P1D"
     provider: "CMEMS"
     coordinate_conventions:
       lon: ["longitude"]
       lat: ["latitude"]
       time: ["time"]
     variable_mapping:
-      sla: "ssh"
+      adt: "ssh" # Absolute Dynamic Topography
+      sla: "sla" # Sea Level Anomaly
     lon_convention: "360"
 
   # 5. Surface Winds (ASCAT)
   ascat:
-    product_id: "WIND_GLO_WIND_L4_REP_OBSERVATIONS_012_006"
-    dataset_id: "C3S-GLO-WIND_L4-REP-OBS-WIND"
+    product_id: "WIND_GLO_PHY_L4_MY_012_006"
+    dataset_id: "cmems_obs-wind_glo_phy_my_l4_0.125deg_PT1H"
     provider: "CMEMS"
     coordinate_conventions:
-      lon: ["lon"]
-      lat: ["lat"]
+      lon: ["longitude"]
+      lat: ["latitude"]
       time: ["time"]
     variable_mapping:
       eastward_wind: "wind_u"
@@ -73,16 +74,16 @@ datasets:
 
   # 6. Surface Currents (GlobCurrent)
   globcurrent:
-    product_id: "MULTIOBS_GLO_PHY_REP_015_004"
-    dataset_id: "dataset-uv-rep-daily"
+    product_id: "MULTIOBS_GLO_PHY_MYNRT_015_003"
+    dataset_id: "cmems_obs-mob_glo_phy-cur_my_0.25deg_P1D-m"
     provider: "CMEMS"
     coordinate_conventions:
       lon: ["longitude"]
       lat: ["latitude"]
       time: ["time"]
     variable_mapping:
-      ugos: "current_u"
-      vgos: "current_v"
+      uo: "current_u"
+      vo: "current_v"
     lon_convention: "180"
 
   # 7. Argo Profiles (Validation)

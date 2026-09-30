@@ -35,6 +35,7 @@ desktop.ini
 data/raw/
 data/interim/
 data/processed/
+data/benchmark/
 data/samples/*.nc
 data/samples/*.npy
 data/samples/*.zarr
