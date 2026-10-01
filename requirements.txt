@@ -9,6 +9,7 @@ dask>=2023.1.0
 # === Machine Learning ===
 torch>=2.0.0
 torchvision>=0.15.0
+einops>=0.7.0
 scikit-learn>=1.2.0
 
 # === Visualization ===
