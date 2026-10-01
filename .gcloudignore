@@ -1,0 +1,37 @@
+# Files excluded from `gcloud run deploy --source` / `gcloud builds submit` uploads (mirrors .dockerignore).
+.git
+.gitignore
+**/__pycache__
+**/*.pyc
+.pytest_cache
+venv
+.venv
+env
+.env
+.env.*
+!.env.example
+
+frontend/node_modules
+frontend/dist
+
+# Training data & raw datasets (only data/samples/test is used at runtime)
+data/raw
+data/interim
+data/processed
+data/samples/train
+data/samples/val
+data/samples/demo
+artifacts/figures
+artifacts/embeddings
+artifacts/predictions
+
+# Docs, notebooks, presentations, scripts
+docs
+notebooks
+tests
+scripts
+*.pptx
+*.vbs
+ppt_dump.txt
+*.md
+start.bat

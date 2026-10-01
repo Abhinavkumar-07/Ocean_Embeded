@@ -19,7 +19,8 @@ import {
   hashString
 } from './demoData';
 
-const API_URL = 'http://localhost:8000/api/v1';
+// Same-origin in production (served by FastAPI); Vite proxies /api to the backend in dev.
+export const API_URL = import.meta.env.VITE_API_URL ?? '/api/v1';
 const TIMEOUT_MS = 5000;
 
 // --- Helpers ---

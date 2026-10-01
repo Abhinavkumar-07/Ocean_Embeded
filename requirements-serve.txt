@@ -1,0 +1,10 @@
+# Minimal runtime dependencies for the API server (used by the Docker image).
+# Training / data-pipeline dependencies live in requirements.txt.
+# torch is installed separately in the Dockerfile from the CPU-only wheel index.
+numpy>=1.24.0
+scipy>=1.10.0
+einops>=0.7.0
+fastapi>=0.100.0
+uvicorn[standard]>=0.22.0
+pydantic>=2.0.0
+google-cloud-storage>=2.10.0

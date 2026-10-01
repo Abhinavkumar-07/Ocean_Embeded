@@ -63,6 +63,9 @@ npm run dev
 ```
 Navigate to `http://localhost:5173` in your browser.
 
+## Deploying to Google Cloud
+See [docs/DEPLOY_GCP.md](docs/DEPLOY_GCP.md): a single Cloud Run container serves both the API and the dashboard.
+
 ## Documentation
 * See [Pitch Deck Outline](docs/sih_pitch_deck.md)
 * See [Model Card](docs/model_card.md)

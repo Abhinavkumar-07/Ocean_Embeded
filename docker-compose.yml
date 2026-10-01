@@ -1,34 +1,13 @@
-version: '3.8'
-
+# Local run of the same image that is deployed to Cloud Run.
+#   docker compose up --build   ->  http://localhost:8080
 services:
-  backend:
-    build:
-      context: .
-      dockerfile: backend/Dockerfile
+  oceanembed:
+    build: .
     ports:
-      - "8000:8000"
+      - "8080:8080"
     environment:
-      - APP_MODE=${APP_MODE:-demo}
-      - MODEL_CHECKPOINT=${MODEL_CHECKPOINT:-artifacts/checkpoints/best_model.pt}
-      - DEVICE=${DEVICE:-cpu}
+      - PORT=8080
+      # - MODEL_CHECKPOINT=gs://YOUR_BUCKET/best_model.pt
     volumes:
-      - ./data:/app/data:ro
-      - ./artifacts:/app/artifacts:ro
-      - ./configs:/app/configs:ro
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "5173:80"
-    depends_on:
-      backend:
-        condition: service_healthy
-    environment:
-      - VITE_API_URL=http://backend:8000
+      # Mount local checkpoints so a freshly trained model is picked up without rebuilding.
+      - ./artifacts/checkpoints:/app/artifacts/checkpoints:ro

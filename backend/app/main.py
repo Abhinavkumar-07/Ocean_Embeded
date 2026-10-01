@@ -6,6 +6,7 @@ Serves real model inference, profiles, XAI, uncertainty, and simulation.
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from pydantic import BaseModel
 import torch
 import numpy as np
@@ -15,22 +16,58 @@ import traceback
 from scipy.ndimage import gaussian_filter
 
 # Ensure ml package is available
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, PROJECT_ROOT)
 
 from ml.models.oceanembed import OceanEmbedModel
 from ml.data.dataset import OceanDataset
 from ml.inference.explainability import SaliencyExplainer
 
+
+def _project_path(env_var: str, default: str) -> str:
+    """Resolve a path from an env var (or default), relative to the project root."""
+    value = os.getenv(env_var, default)
+    if value.startswith("gs://") or os.path.isabs(value):
+        return value
+    return os.path.join(PROJECT_ROOT, value)
+
+
+# Runtime configuration (override via environment variables, e.g. on Cloud Run).
+# MODEL_CHECKPOINT / NORM_STATS_PATH may also be gs:// URIs; they are downloaded at startup.
+MODEL_CHECKPOINT = _project_path("MODEL_CHECKPOINT", "artifacts/checkpoints/best_model.pt")
+NORM_STATS_PATH = _project_path("NORM_STATS_PATH", "artifacts/norm_stats.npz")
+TEST_SAMPLES_DIR = _project_path("TEST_SAMPLES_DIR", "data/samples/test")
+FRONTEND_DIST = _project_path("FRONTEND_DIST", "frontend/dist")
+CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "*").split(",") if o.strip()]
+
+
+def _resolve_local(path: str) -> str:
+    """Return a local path for `path`, downloading it first if it is a gs:// URI."""
+    if not path.startswith("gs://"):
+        return path
+    from google.cloud import storage  # only needed when artifacts live in GCS
+
+    bucket_name, _, blob_name = path[len("gs://"):].partition("/")
+    local_path = os.path.join("/tmp/oceanembed", os.path.basename(blob_name))
+    if not os.path.exists(local_path):
+        os.makedirs(os.path.dirname(local_path), exist_ok=True)
+        print(f"  Downloading {path} -> {local_path}")
+        storage.Client().bucket(bucket_name).blob(blob_name).download_to_filename(local_path)
+    return local_path
+
+
 app = FastAPI(title="OceanEmbed API", version="2.0.0")
 
-# Allow CORS for React frontend
+# Allow CORS for React frontend (same-origin in production, so this mainly matters for dev)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=CORS_ORIGINS,
+    allow_credentials=CORS_ORIGINS != ["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
+# Inference volumes are multi-MB JSON; compress responses to cut transfer size.
+app.add_middleware(GZipMiddleware, minimum_size=1024)
 
 # Global State
 MODEL = None
@@ -50,7 +87,12 @@ def load_model():
     print("OceanEmbed Backend — Loading model and data...")
     print("=" * 60)
     device = torch.device("cpu")
-    checkpoint_path = "artifacts/checkpoints/best_model.pt"
+    try:
+        checkpoint_path = _resolve_local(MODEL_CHECKPOINT)
+    except Exception as e:
+        STARTUP_ERROR = f"Failed to fetch checkpoint {MODEL_CHECKPOINT}: {e}"
+        print(f"ERROR: {STARTUP_ERROR}")
+        return
 
     if not os.path.exists(checkpoint_path):
         STARTUP_ERROR = f"Checkpoint not found at {checkpoint_path}"
@@ -114,7 +156,13 @@ def load_model():
         return
 
     # Load normalization stats
-    norm_path = "artifacts/norm_stats.npz"
+    try:
+        norm_path = _resolve_local(NORM_STATS_PATH)
+    except Exception as e:
+        STARTUP_ERROR = f"Failed to fetch norm stats {NORM_STATS_PATH}: {e}"
+        print(f"  [ERROR] ERROR: {STARTUP_ERROR}")
+        MODEL = None
+        return
     if os.path.exists(norm_path):
         try:
             NORM_STATS = OceanDataset.load_norm_stats(norm_path)
@@ -131,7 +179,7 @@ def load_model():
         return
 
     # Preload the last sample from the test set for the demo
-    test_dir = "data/samples/test"
+    test_dir = TEST_SAMPLES_DIR
     if os.path.exists(test_dir):
         files = sorted([f for f in os.listdir(test_dir) if f.endswith('.npz')])
         if files:
@@ -194,7 +242,7 @@ async def startup_event():
 # Health & Status
 # ============================================================
 
-@app.get("/")
+@app.get("/api")
 def read_root():
     return {"message": "OceanEmbed API is running.", "status": "live" if MODEL is not None else "demo"}
 
@@ -548,3 +596,31 @@ def get_uncertainty(lat: float = 15.6, lon: float = 88.4, n_samples: int = 20):
         "source": "mc_dropout",
         "grid_location": {"lat": lat, "lon": lon},
     }
+
+
+# ============================================================
+# Frontend — serve the built React app (production / Cloud Run)
+# ============================================================
+# Registered last so every /api/* route above takes precedence.
+
+if os.path.isdir(FRONTEND_DIST):
+    from fastapi.responses import FileResponse
+    from fastapi.staticfiles import StaticFiles
+
+    _assets_dir = os.path.join(FRONTEND_DIST, "assets")
+    if os.path.isdir(_assets_dir):
+        app.mount("/assets", StaticFiles(directory=_assets_dir), name="assets")
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    def serve_frontend(full_path: str):
+        """Serve static files from the build, falling back to index.html for client-side routes."""
+        if full_path.startswith("api/"):
+            raise HTTPException(status_code=404, detail="Not found")
+        candidate = os.path.realpath(os.path.join(FRONTEND_DIST, full_path))
+        if candidate.startswith(os.path.realpath(FRONTEND_DIST)) and os.path.isfile(candidate):
+            return FileResponse(candidate)
+        return FileResponse(os.path.join(FRONTEND_DIST, "index.html"))
+else:
+    @app.get("/")
+    def root_without_frontend():
+        return {"message": "OceanEmbed API is running. Frontend build not found.", "docs": "/docs"}

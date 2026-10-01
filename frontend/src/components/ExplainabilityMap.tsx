@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { API_URL } from '../data/api';
 
 interface ExplainabilityMapProps {
     width?: number;
@@ -14,7 +15,7 @@ const ExplainabilityMap: React.FC<ExplainabilityMapProps> = ({ width = 241, heig
         const fetchHeatmap = async () => {
             try {
                 setLoading(true);
-                const response = await fetch('http://localhost:8000/api/v1/explain');
+                const response = await fetch(`${API_URL}/explain`);
                 const data = await response.json();
                 const heatmapData = data.heatmap; // 2D array of shape [height][width]
                 
